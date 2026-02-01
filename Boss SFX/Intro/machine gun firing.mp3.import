@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://drvk8h1qmy862"
+path="res://.godot/imported/machine gun firing.mp3-0e18aae551d001129b61cbde1a87eb39.mp3str"
+
+[deps]
+
+source_file="res://Boss SFX/Intro/machine gun firing.mp3"
+dest_files=["res://.godot/imported/machine gun firing.mp3-0e18aae551d001129b61cbde1a87eb39.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://doslio7kh5i64"
+path="res://.godot/imported/Ambatukam Dreamy Bull Sound Effect.mp3-fe267f6510f767f1970de81c6ab58f88.mp3str"
+
+[deps]
+
+source_file="res://Boss SFX/Intro/Ambatukam Dreamy Bull Sound Effect.mp3"
+dest_files=["res://.godot/imported/Ambatukam Dreamy Bull Sound Effect.mp3-fe267f6510f767f1970de81c6ab58f88.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

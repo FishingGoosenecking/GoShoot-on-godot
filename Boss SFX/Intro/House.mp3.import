@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://co60kxjcu5x4l"
+path="res://.godot/imported/House.mp3-cb2c9d2801399b8da40f381add3d530c.mp3str"
+
+[deps]
+
+source_file="res://Boss SFX/Intro/House.mp3"
+dest_files=["res://.godot/imported/House.mp3-cb2c9d2801399b8da40f381add3d530c.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

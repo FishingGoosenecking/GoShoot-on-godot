@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://c7xlvvbp5va4b"
+path="res://.godot/imported/SixSeven.mp3-86d839fe9a00308f896ac22dabcc41d3.mp3str"
+
+[deps]
+
+source_file="res://Boss SFX/Intro/SixSeven.mp3"
+dest_files=["res://.godot/imported/SixSeven.mp3-86d839fe9a00308f896ac22dabcc41d3.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

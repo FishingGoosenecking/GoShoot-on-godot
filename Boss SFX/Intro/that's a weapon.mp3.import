@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://betwky55t4r6d"
+path="res://.godot/imported/that's a weapon.mp3-da06be904de84fd1cfccfc0a4d6a26b3.mp3str"
+
+[deps]
+
+source_file="res://Boss SFX/Intro/that's a weapon.mp3"
+dest_files=["res://.godot/imported/that's a weapon.mp3-da06be904de84fd1cfccfc0a4d6a26b3.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

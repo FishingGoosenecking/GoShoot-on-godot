@@ -1,0 +1,141 @@
+[gd_scene format=3 uid="uid://dh0de12u441rq"]
+
+[ext_resource type="Script" uid="uid://dh2rmh6bf0702" path="res://main.gd" id="1_glv2v"]
+[ext_resource type="PackedScene" uid="uid://dw36spqjc8mi1" path="res://ScorePopup.tscn" id="2_cm0pq"]
+[ext_resource type="PackedScene" uid="uid://d4d5y2dcnvew4" path="res://Circle.tscn" id="2_uu6xs"]
+[ext_resource type="AudioStream" uid="uid://dynne6bdsjwja" path="res://machinegun_shot.mp3" id="3_r0du0"]
+[ext_resource type="PackedScene" uid="uid://dlre0eabell0s" path="res://Boss.tscn" id="4_3dxm6"]
+[ext_resource type="AudioStream" uid="uid://2ibnqxsdc0tg" path="res://Boss SFX/Intro/Gym.mp3" id="4_trn2v"]
+[ext_resource type="AudioStream" uid="uid://doslio7kh5i64" path="res://Boss SFX/Intro/Ambatukam Dreamy Bull Sound Effect.mp3" id="5_03owx"]
+[ext_resource type="Shader" uid="uid://3ic78s5rmcov" path="res://Main.gdshader" id="5_fos0i"]
+[ext_resource type="AudioStream" uid="uid://co60kxjcu5x4l" path="res://Boss SFX/Intro/House.mp3" id="6_j4qnp"]
+[ext_resource type="AudioStream" uid="uid://c5mkaqdwrv0iw" path="res://Boss SFX/Intro/Protein.mp3" id="7_fpfj3"]
+[ext_resource type="AudioStream" uid="uid://c7xlvvbp5va4b" path="res://Boss SFX/Intro/SixSeven.mp3" id="8_sc1dx"]
+[ext_resource type="AudioStream" uid="uid://c2antjax5oudw" path="res://Boss SFX/Intro/La visita.mp3" id="9_kjvhd"]
+[ext_resource type="AudioStream" uid="uid://ccm2loet7sfh2" path="res://Boss SFX/Intro/Bigger weapons.mp3" id="10_5tuhn"]
+[ext_resource type="AudioStream" uid="uid://betwky55t4r6d" path="res://Boss SFX/Intro/that's a weapon.mp3" id="11_2gh4u"]
+[ext_resource type="AudioStream" uid="uid://decmq6418pnqd" path="res://Boss SFX/Intro/Need more boulets.mp3" id="12_devvj"]
+[ext_resource type="AudioStream" uid="uid://b1vwfxeakdjpq" path="res://ambatublow.mp3" id="13_kjvhd"]
+[ext_resource type="AudioStream" uid="uid://drrxhkw6fvrwl" path="res://thank you thank you thank you thank you thank you thank you thank you thank you thank you thank you.mp3" id="14_2gh4u"]
+[ext_resource type="AudioStream" uid="uid://ijqrb84nssxy" path="res://Oldest skibidi fan _ Skibidi dop dop dop ya ya full video 4.mp3" id="15_devvj"]
+[ext_resource type="Script" uid="uid://w4x65rultpjw" path="res://parallaxBG.gd" id="16_sc1dx"]
+[ext_resource type="Texture2D" uid="uid://c2v4m83pi5d42" path="res://BG_LowColor.png" id="17_sc1dx"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3dxm6"]
+resource_local_to_scene = true
+shader = ExtResource("5_fos0i")
+shader_parameter/light_pos = Vector2(0, 0)
+shader_parameter/screen_size = Vector2(0, 0)
+shader_parameter/radius = 150.0
+shader_parameter/darkness = 0.1
+shader_parameter/softness = 0.8
+
+[sub_resource type="LabelSettings" id="LabelSettings_uu6xs"]
+font_size = 40
+
+[sub_resource type="LabelSettings" id="LabelSettings_j4qnp"]
+font_size = 64
+
+[node name="Main" type="Node2D" unique_id=1842628434]
+script = ExtResource("1_glv2v")
+popup_scene = ExtResource("2_cm0pq")
+circle_scene = ExtResource("2_uu6xs")
+NIGHT_DARKNESS = 0.9
+boss_intro_sounds = Array[AudioStream]([ExtResource("12_devvj"), ExtResource("11_2gh4u"), ExtResource("10_5tuhn"), ExtResource("9_kjvhd"), ExtResource("8_sc1dx"), ExtResource("7_fpfj3"), ExtResource("6_j4qnp"), ExtResource("5_03owx"), ExtResource("4_trn2v"), ExtResource("13_kjvhd"), ExtResource("14_2gh4u"), ExtResource("15_devvj")])
+boss_scene = ExtResource("4_3dxm6")
+
+[node name="Timer" type="Timer" parent="." unique_id=948187673]
+
+[node name="ClickSound" type="AudioStreamPlayer2D" parent="." unique_id=512063239]
+stream = ExtResource("3_r0du0")
+volume_db = -10.317
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=2072230941]
+layer = 0
+
+[node name="NightOverlay" type="ColorRect" parent="CanvasLayer" unique_id=1529291790]
+visible = false
+material = SubResource("ShaderMaterial_3dxm6")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=720877451]
+follow_viewport_enabled = true
+
+[node name="GameHUD" type="CanvasLayer" parent="HUD" unique_id=1827119552]
+
+[node name="ComboBar" type="ProgressBar" parent="HUD/GameHUD" unique_id=728806840]
+offset_left = 1.0
+offset_top = 621.0
+offset_right = 443.0
+offset_bottom = 648.0
+mouse_filter = 1
+max_value = 24.0
+step = 1.0
+show_percentage = false
+
+[node name="ScoreLabel" type="Label" parent="HUD/GameHUD" unique_id=1983466898]
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 215.0
+offset_bottom = 67.0
+text = "Score: 0"
+label_settings = SubResource("LabelSettings_uu6xs")
+vertical_alignment = 1
+
+[node name="ComboLabel" type="Label" parent="HUD/GameHUD" unique_id=2040351555]
+offset_left = 6.0
+offset_top = 623.0
+offset_right = 196.0
+offset_bottom = 646.0
+mouse_filter = 1
+text = "Multi: 1x"
+
+[node name="NightModeLabel" type="Label" parent="HUD/GameHUD" unique_id=1940222682]
+offset_left = 4.0
+offset_top = 593.0
+offset_right = 194.0
+offset_bottom = 618.0
+mouse_filter = 1
+text = "Day"
+
+[node name="BossBar" type="ProgressBar" parent="HUD/GameHUD" unique_id=318545043]
+visible = false
+modulate = Color(1, 0, 0, 1)
+offset_left = 416.0
+offset_top = 30.0
+offset_right = 760.0
+offset_bottom = 57.0
+value = 100.0
+
+[node name="AlertLabel" type="Label" parent="HUD/GameHUD" unique_id=70689783]
+offset_left = 304.0
+offset_top = 166.0
+offset_right = 868.0
+offset_bottom = 274.0
+label_settings = SubResource("LabelSettings_j4qnp")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BossIntroAudio" type="AudioStreamPlayer2D" parent="." unique_id=362851852]
+
+[node name="BGcanvas" type="CanvasLayer" parent="." unique_id=65523095]
+layer = -5
+
+[node name="Parallax2D" type="Parallax2D" parent="BGcanvas" unique_id=1542230854]
+repeat_size = Vector2(790, 790)
+limit_begin = Vector2(0, 0)
+limit_end = Vector2(1000, 1000)
+script = ExtResource("16_sc1dx")
+
+[node name="BackgroundTex" type="Sprite2D" parent="BGcanvas/Parallax2D" unique_id=195432172]
+z_index = -5
+texture_repeat = 2
+position = Vector2(577, 317.00003)
+scale = Vector2(0.595, 0.595)
+texture = ExtResource("17_sc1dx")
