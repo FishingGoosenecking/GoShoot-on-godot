@@ -1,6 +1,7 @@
 extends Node2D
 
 @onready var bg = $BGcanvas/Parallax2D
+@onready var click_particles_scene = preload("res://ClickParticles.tscn")
 
 @export var popup_scene: PackedScene
 @export var circle_scene: PackedScene
@@ -8,6 +9,18 @@ extends Node2D
 var player_damage := 1
 var combo_bonus := 1.0
 var boss_spawn_rate := 1.0
+
+var rng = RandomNumberGenerator.new()
+# === ROUND SYSTEM ===
+var round := 1
+var round_time := 30.0
+var time_left := 30.0
+
+var score_goal := 10
+
+var upgrade_points = 0
+
+var in_intermission := false
 
 #night transition
 var transition_state := "day"
@@ -62,16 +75,12 @@ var screen_size
 var boss_instance: Node = null
 
 func _ready():
-
+	start_round()
 	# Start hidden
 	screen_size = get_viewport_rect().size
 	spawn_circle()
 
-func get_screen_diagonal() -> float:
-	var size = get_viewport_rect().size
-	return sqrt(size.x * size.x + size.y * size.y)
 
-#loop func
 func _process(delta):
 	
 	bg.combo = combo
@@ -114,6 +123,12 @@ func _process(delta):
 	
 		if diff > combo_break_time * 0.7:
 			$HUD/GameHUD/ComboBar.modulate = Color.ORANGE
+			
+
+#get_screen_size
+func get_screen_diagonal() -> float:
+	var size = get_viewport_rect().size
+	return sqrt(size.x * size.x + size.y * size.y)
 
 #day/night
 func handle_to_night(delta):
@@ -136,7 +151,7 @@ func handle_to_night(delta):
 		t
 	)
 
-	var mat = $CanvasLayer/NightOverlay.material
+	var mat = $NightMode/NightOverlay.material
 
 	mat.set_shader_parameter("radius", flashlight_radius)
 	mat.set_shader_parameter("darkness", darkness)
@@ -164,7 +179,7 @@ func handle_to_day(delta):
 		t
 	)
 
-	var mat = $CanvasLayer/NightOverlay.material
+	var mat = $NightMode/NightOverlay.material
 
 	mat.set_shader_parameter("radius", flashlight_radius)
 	mat.set_shader_parameter("darkness", darkness)
@@ -174,7 +189,7 @@ func handle_to_day(delta):
 		transition_state = "day"
 		$HUD/GameHUD/NightModeLabel.text = "transition_state: %s" % transition_state
 
-		$CanvasLayer/NightOverlay.visible = false
+		$NightMode/NightOverlay.visible = false
 
 func start_night_mode():
 	
@@ -190,12 +205,12 @@ func start_night_mode():
 	start_radius = get_screen_diagonal() * 1.2
 	flashlight_radius = start_radius
 
-	var mat = $CanvasLayer/NightOverlay.material
+	var mat = $NightMode/NightOverlay.material
 
 	mat.set_shader_parameter("radius", flashlight_radius)
 	mat.set_shader_parameter("darkness", DAY_DARKNESS)
 
-	$CanvasLayer/NightOverlay.visible = true
+	$NightMode/NightOverlay.visible = true
 	$HUD/GameHUD/NightModeLabel.text = "transition_state: %s" % transition_state
 	
 func end_night_mode():
@@ -209,7 +224,7 @@ func end_night_mode():
 	
 func update_flashlight():
 
-	var mat = $CanvasLayer/NightOverlay.material
+	var mat = $NightMode/NightOverlay.material
 	mat.set_shader_parameter(
 		"light_pos",
 		get_viewport().get_mouse_position()
@@ -242,8 +257,7 @@ func spawn_multiple_circles(amount: int):
 func _on_circle_expired():
 	if boss_instance != null:
 		score = max(score-1,0)
-		
-	$HUD/GameHUD/ScoreLabel.text = "Score: %d" % score
+		update_hud()
 	spawn_circle()
 	
 
@@ -266,6 +280,8 @@ func spawn_circle():
 	var limit = MAX_NIGHT_TARGETS if transition_state == "night" else MAX_DAY_TARGETS
 	if get_target_count() >= limit:
 		return
+	if intermission_active == true:
+		return
 	var circle = circle_scene.instantiate()
 	circle.expired.connect(_on_circle_expired)
 	
@@ -281,9 +297,10 @@ func spawn_circle():
 	circle.position = Vector2(x, y)
 	circle.clicked.connect(_on_circle_clicked)
 	add_child(circle)
-
+	
 func _on_circle_clicked(pos: Vector2):
 	spawn_circle()
+	spawn_click_particles(pos)
 	get_score(pos)
 	
 	if score > boss_spawn_score and boss_instance == null and randf() < boss_chance and boss_interval <= 0:
@@ -302,7 +319,9 @@ func play_random_boss_sound():
 
 	$BossIntroAudio.stream = boss_intro_sounds[index]
 	$BossIntroAudio.play()
-
+	
+func stop_random_boss_sound():
+	$BossIntroAudio.stop()
 func spawn_boss():
 
 	if boss_instance:
@@ -373,6 +392,8 @@ func get_score(pos: Vector2):
 	$ClickSound.play()
 	spawn_popup(pos, points, combo)
 	update_combo_bar(combo, 24)
+	check_goal()
+	update_hud()
 
 	if not night_mode and randf() < night_chance and night_cooldown <= 0:
 		start_night_mode()
@@ -409,4 +430,98 @@ func show_alert(text: String, color := Color.WHITE, time := 1.2):
 		label.visible = false
 		label.modulate.a = 1.0
 	)
+	
+# ========= Rounding + Timer ===========
+
+func start_round():
+	$HUD/GameHUD/Goalbar.max_value = score_goal
+	in_intermission = false
+	time_left = round_time
+	$Timer.start()
+	update_hud()
+	
+func _on_timer_timeout():
+	if in_intermission == true:
+		return
+	time_left -= 1
+	if time_left <= 0:
+		$Timer.stop()
+		show_game_over()
+		print("Done")
+	else:
+		update_hud()
+
+func check_goal():
+	if score >= score_goal:
+		show_round_clear()
+
+func reset_progress():
+	round = 1
+	score = 0
+
+	score_goal = 10
+	round_time = 30.0
+
+func _on_ContinueButton_pressed():
+	start_next_round()
+
+func update_hud():
+	$HUD/GameHUD/Goalbar.value = score
+	$HUD/GameHUD/TimerLabel.text = "Time: " + str(int(time_left))
+	
+func show_game_over():
+	play_random_boss_sound()
+	$HUD/GameHUD.visible = false
+	$HUD/IntermissionHUD.visible = false
+	$HUD/GameOverHUD.visible = true
+	get_tree().paused = true
+# ========== Intermission HUD ===========
+
+var intermission_active = false
+var intermission_tween: Tween
+
+func show_round_clear():
+	play_random_boss_sound()
+	intermission_active = true
+	in_intermission = true
+	upgrade_points += 2
+	$Timer.stop()
+	# Show intermission
+	$HUD/GameHUD.hide()
+	$HUD/IntermissionHUD.show()
+	get_tree().paused = true
+	
+func _on_continue_button_pressed() -> void:
+	hide_round_clear()
+	stop_random_boss_sound()
+
+func start_next_round():
+	intermission_active = false
+	get_tree().paused = false 
+	
+	round_time += rng.randf_range(-10,10)
+	score_goal += rng.randf_range(2.0,25.0)
+	boss_chance += rng.randf_range(0.0,0.1)
+	score = 0
+	combo = 0
+	$Timer.start()
+	start_round()
+	
+func hide_round_clear():
+	$HUD/GameHUD.show()
+	$HUD/IntermissionHUD.hide()
+	start_next_round()
+
+#========== Click particles =========='
+func _unhandled_input(event):
+	if event is InputEventMouseButton and event.pressed:
+		spawn_click_particles(event.position)
+		print("CLICK:", event.position)
+
+func spawn_click_particles(pos: Vector2):
+	var p = click_particles_scene.instantiate()
+	p.global_position = pos
+	add_child(p)
+	p.emitting = true
+	print("spawn")
 	
