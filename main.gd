@@ -1,5 +1,8 @@
 extends Node2D
 
+@onready var background_normal = preload("res://BG_Color.png")
+@onready var background_play = preload("res://BG_LowColor.png")
+
 @onready var bg = $BGcanvas/Parallax2D
 @onready var click_particles_scene = preload("res://ClickParticles.tscn")
 
@@ -21,8 +24,6 @@ var time_left := 30.0
 
 var score_goal := 10
 var upgrade_points = 0
-
-var in_intermission := true
 var is_paused := false
 
 #night transition
@@ -81,7 +82,6 @@ var boss_interval := boss_interval_set
 func _ready():
 	AudioServer.set_bus_volume_linear(AudioServer.get_bus_index("Clicker"),click_volume)
 	AudioServer.set_bus_volume_linear(AudioServer.get_bus_index("SFX"),sfx_volume)
-	start_round()
 	# Start hidden
 	screen_size = get_viewport_rect().size
 	spawn_circle()
@@ -133,7 +133,7 @@ func get_screen_diagonal() -> float:
 	var size = get_viewport_rect().size
 	return sqrt(size.x * size.x + size.y * size.y)
 
-#day/night
+# =========== Night Mode event ============
 func handle_to_night(delta):
 
 	transition_time += delta
@@ -242,7 +242,7 @@ func update_flashlight():
 	)
 	
 
-#target
+# =========== Targets (circles) ============
 func get_target_count() -> int:
 	return get_tree().get_nodes_in_group("targets").size()
 
@@ -302,18 +302,22 @@ func spawn_circle():
 	add_child(circle)
 	
 func _on_circle_clicked(pos: Vector2):
-	spawn_circle()
-	spawn_click_particles(pos)
-	get_score(pos)
+	if  is_mainmenu:
+		return
+	else:
+		
+		spawn_circle()
+		spawn_click_particles(pos)
+		get_score(pos)
 	
-	if score > boss_spawn_score and boss_instance == null and randf() < boss_chance and boss_interval <= 0:
-		show_alert("BOSS INCOMING!", Color.ORANGE, 1.5)
+		if score > boss_spawn_score and boss_instance == null and randf() < boss_chance and boss_interval <= 0:
+			show_alert("BOSS INCOMING!", Color.ORANGE, 1.5)
 		# Delay boss spawn slightly
-		await get_tree().create_timer(1.2).timeout
-		spawn_boss()
-	boss_interval -= 1
+			await get_tree().create_timer(1.2).timeout
+			spawn_boss()
+		boss_interval -= 1
 
-#boss
+# ============ Boss System ============
 func play_random_boss_sound():
 	if boss_intro_sounds.is_empty():
 		return
@@ -365,7 +369,7 @@ func _on_boss_dead():
 	score += 20
 	play_random_boss_sound()
 
-#scoring
+# ========== Scoring System ============
 func get_score(pos: Vector2):
 	var now = Time.get_ticks_msec()
 	# How long since last hit
@@ -414,7 +418,7 @@ func update_combo_bar(combo: int, max_combo: int):
 	var color = Color.from_hsv(hue, 1.0, 1.0)
 	bar.modulate = color
 
-#alert
+# ========= Alert ==========
 func show_alert(text: String, color := Color.WHITE, time := 1.2):
 	var label = $HUD/GameHUD/AlertLabel
 	
@@ -440,13 +444,14 @@ func show_alert(text: String, color := Color.WHITE, time := 1.2):
 
 func start_round():
 	$HUD/GameHUD/Goalbar.max_value = score_goal
-	in_intermission = false
+	intermission_active = false
+	is_mainmenu = false
 	time_left = round_time
 	$Timer.start()
 	update_hud()
 	
 func _on_timer_timeout():
-	if in_intermission == true:
+	if intermission_active == true:
 		return
 	time_left -= 1
 	print("TimeLeft: %d" % time_left)
@@ -485,15 +490,31 @@ func show_game_over():
 	get_tree().paused = true
 
 # ========== Main Menu HUD ==========
+var is_mainmenu = true
 
 func _on_game_over_return_menu_button_pressed() -> void:
 	show_mainmenu()
+	
+func _on_play_button_pressed() -> void:
+	start_game()
+	
+func _on_settings_mainmenu_button_pressed() -> void:
+	show_settings()
 
 func show_mainmenu():
+	if is_paused:
+		$HUD/PauseHUD.hide()
+	is_mainmenu = true
 	$HUD/GameOverHUD.hide()
 	$HUD/MainMenuHUD.show()
 	reset_progress()
+	$Timer.stop()
 	get_tree().paused = false
+	
+func start_game():
+	$HUD/MainMenuHUD.hide()
+	$HUD/GameHUD.show()
+	start_round()
 	
 # ============ Pause HUD ============
 
@@ -514,12 +535,15 @@ func _on_resume_button_pressed() -> void:
 	
 func _on_settings_paused_button_pressed() -> void:
 	show_settings()
+	
+func _on_returnmenu_paused_button_pressed() -> void:
+	show_mainmenu()
 
 # ========== Settings HUD ==========
 func show_settings():
 	if is_paused:
 		$HUD/PauseHUD.hide()
-	else:
+	if is_mainmenu:
 		$HUD/MainMenuHUD.hide()
 	$HUD/SettingsHUD.show()
 	
@@ -529,7 +553,7 @@ func show_settings():
 func hide_settings():
 	if is_paused:
 		$HUD/PauseHUD.show()
-	else:
+	if is_mainmenu:
 		$HUD/MainMenuHUD.show()
 	$HUD/SettingsHUD.hide()
 	
@@ -555,7 +579,6 @@ var intermission_tween: Tween
 func show_round_clear():
 	play_random_boss_sound()
 	intermission_active = true
-	in_intermission = true
 	upgrade_points += rng.randf_range(1,3)
 	$Timer.stop()
 	# Show intermission
@@ -574,7 +597,7 @@ func start_next_round():
 	get_tree().paused = false 
 	
 	round_time += rng.randf_range(-10,10)
-	score_goal += rng.randf_range(10,50)
+	score_goal += rng.randf_range(5,20)*(round)
 	boss_chance += rng.randf_range(0.0,0.1)
 	round += 1
 	combo = 0
@@ -594,10 +617,14 @@ func _unhandled_input(event):
 		spawn_click_particles(event.position)
 		print("CLICK:", event.position)
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
-		if !is_paused:
-			show_pause()
-		else:
-			hide_pause()
+		if !is_mainmenu:
+			if !is_paused:
+				show_pause()
+			else:
+				hide_pause()
+	if event is InputEventKey and event.pressed and event.keycode == KEY_ENTER:
+		if intermission_active:
+			hide_round_clear()
 	
 
 func spawn_click_particles(pos: Vector2):
@@ -606,3 +633,10 @@ func spawn_click_particles(pos: Vector2):
 	add_child(p)
 	p.emitting = true
 	print("spawn")
+	
+# ========= Upgrades ==========
+var flashlight_power = 1
+var score_multiplier = 1
+var target_lifetime = 1
+var combo_duration = 1
+var perk = "none" #none, special force, duelist, bribery, prepper 

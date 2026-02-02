@@ -15,9 +15,10 @@
 [ext_resource type="AudioStream" uid="uid://ccm2loet7sfh2" path="res://Boss SFX/Intro/Bigger weapons.mp3" id="10_5tuhn"]
 [ext_resource type="AudioStream" uid="uid://betwky55t4r6d" path="res://Boss SFX/Intro/that's a weapon.mp3" id="11_2gh4u"]
 [ext_resource type="AudioStream" uid="uid://decmq6418pnqd" path="res://Boss SFX/Intro/Need more boulets.mp3" id="12_devvj"]
-[ext_resource type="AudioStream" uid="uid://b1vwfxeakdjpq" path="res://ambatublow.mp3" id="13_kjvhd"]
+[ext_resource type="AudioStream" uid="uid://b1vwfxeakdjpq" path="res://Boss SFX/Intro/ambatublow.mp3" id="13_kjvhd"]
 [ext_resource type="AudioStream" uid="uid://dykpsfyphn11t" path="res://Boss SFX/Intro/thank you thank you thank you thank you thank you thank you thank you thank you thank you thank you.mp3" id="14_2gh4u"]
 [ext_resource type="AudioStream" uid="uid://ijqrb84nssxy" path="res://Boss SFX/Intro/Oldest skibidi fan _ Skibidi dop dop dop ya ya full video 4.mp3" id="15_devvj"]
+[ext_resource type="AudioStream" uid="uid://dqiqfxp4fga03" path="res://เพนกวินเต้นตึงๆ.mp3" id="16_devvj"]
 [ext_resource type="Script" uid="uid://w4x65rultpjw" path="res://parallaxBG.gd" id="16_sc1dx"]
 [ext_resource type="Texture2D" uid="uid://c2v4m83pi5d42" path="res://BG_LowColor.png" id="17_sc1dx"]
 
@@ -60,7 +61,7 @@ script = ExtResource("1_glv2v")
 popup_scene = ExtResource("2_cm0pq")
 circle_scene = ExtResource("2_uu6xs")
 NIGHT_DARKNESS = 0.9
-boss_intro_sounds = Array[AudioStream]([ExtResource("12_devvj"), ExtResource("11_2gh4u"), ExtResource("10_5tuhn"), ExtResource("9_kjvhd"), ExtResource("8_sc1dx"), ExtResource("7_fpfj3"), ExtResource("6_j4qnp"), ExtResource("5_03owx"), ExtResource("4_trn2v"), ExtResource("13_kjvhd"), ExtResource("15_devvj"), ExtResource("14_2gh4u")])
+boss_intro_sounds = Array[AudioStream]([ExtResource("12_devvj"), ExtResource("11_2gh4u"), ExtResource("10_5tuhn"), ExtResource("9_kjvhd"), ExtResource("8_sc1dx"), ExtResource("7_fpfj3"), ExtResource("6_j4qnp"), ExtResource("5_03owx"), ExtResource("4_trn2v"), ExtResource("13_kjvhd"), ExtResource("15_devvj"), ExtResource("14_2gh4u"), ExtResource("16_devvj")])
 boss_scene = ExtResource("4_3dxm6")
 
 [node name="Timer" type="Timer" parent="." unique_id=948187673]
@@ -89,6 +90,7 @@ process_mode = 2
 follow_viewport_enabled = true
 
 [node name="GameHUD" type="CanvasLayer" parent="HUD" unique_id=1827119552]
+visible = false
 
 [node name="Goalbar" type="ProgressBar" parent="HUD/GameHUD" unique_id=1591833753]
 anchors_preset = 10
@@ -318,10 +320,9 @@ label_settings = SubResource("LabelSettings_bg4s2")
 vertical_alignment = 1
 
 [node name="MainMenuHUD" type="CanvasLayer" parent="HUD" unique_id=827523611]
-visible = false
 
 [node name="MainMenuPanel" type="ColorRect" parent="HUD/MainMenuHUD" unique_id=2012178415]
-process_mode = 2
+process_mode = 3
 anchors_preset = 9
 anchor_bottom = 1.0
 offset_right = 391.0
@@ -329,17 +330,19 @@ grow_vertical = 2
 color = Color(0, 0, 0, 0.17254902)
 
 [node name="GameNameLabel" type="Label" parent="HUD/MainMenuHUD/MainMenuPanel" unique_id=1520719543]
+process_mode = 3
 layout_mode = 0
 offset_left = 2.0
 offset_top = 28.0
 offset_right = 391.0
 offset_bottom = 145.0
-text = "GameNameHere"
+text = "GoShoot!"
 label_settings = SubResource("LabelSettings_mxvw5")
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="PlayButton" type="Button" parent="HUD/MainMenuHUD/MainMenuPanel" unique_id=2120496368]
+process_mode = 3
 layout_mode = 0
 offset_left = 61.0
 offset_top = 233.0
@@ -348,6 +351,7 @@ offset_bottom = 284.0
 text = "Play"
 
 [node name="SettingsButton" type="Button" parent="HUD/MainMenuHUD/MainMenuPanel" unique_id=572189931]
+process_mode = 3
 layout_mode = 0
 offset_left = 61.0
 offset_top = 318.0
@@ -403,11 +407,11 @@ offset_bottom = 457.0
 text = "Return To Menu"
 
 [node name="SettingsHUD" type="CanvasLayer" parent="HUD" unique_id=1600904975]
-process_mode = 2
+process_mode = 3
 visible = false
 
 [node name="SettingsPanel" type="ColorRect" parent="HUD/SettingsHUD" unique_id=1874041245]
-process_mode = 2
+process_mode = 3
 anchors_preset = 9
 anchor_bottom = 1.0
 offset_right = 391.0
@@ -415,17 +419,19 @@ grow_vertical = 2
 color = Color(0, 0, 0, 0.17254902)
 
 [node name="Label" type="Label" parent="HUD/SettingsHUD/SettingsPanel" unique_id=1631573155]
+process_mode = 3
 layout_mode = 0
 offset_left = 2.0
 offset_top = 28.0
 offset_right = 391.0
 offset_bottom = 145.0
-text = "Paused"
+text = "Settings"
 label_settings = SubResource("LabelSettings_mxvw5")
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Save" type="Button" parent="HUD/SettingsHUD/SettingsPanel" unique_id=441240727]
+process_mode = 3
 layout_mode = 0
 offset_left = 61.0
 offset_top = 550.0
@@ -434,6 +440,7 @@ offset_bottom = 601.0
 text = "Save"
 
 [node name="SFXslider" type="HSlider" parent="HUD/SettingsHUD/SettingsPanel" unique_id=916208292]
+process_mode = 3
 layout_mode = 0
 offset_left = 40.0
 offset_top = 210.0
@@ -443,6 +450,7 @@ max_value = 1.0
 step = 0.01
 
 [node name="Clickerslider" type="HSlider" parent="HUD/SettingsHUD/SettingsPanel" unique_id=1310588938]
+process_mode = 3
 layout_mode = 0
 offset_left = 40.0
 offset_top = 272.0
@@ -452,6 +460,7 @@ max_value = 1.0
 step = 0.01
 
 [node name="Label2" type="Label" parent="HUD/SettingsHUD/SettingsPanel" unique_id=719172364]
+process_mode = 3
 layout_mode = 0
 offset_left = 44.0
 offset_top = 243.0
@@ -460,6 +469,7 @@ offset_bottom = 266.0
 text = "Clicker Volume"
 
 [node name="Label3" type="Label" parent="HUD/SettingsHUD/SettingsPanel" unique_id=1615795356]
+process_mode = 3
 layout_mode = 0
 offset_left = 44.0
 offset_top = 178.0
@@ -473,15 +483,18 @@ pitch_scale = 1.51
 bus = &"SFX"
 
 [node name="BGcanvas" type="CanvasLayer" parent="." unique_id=65523095]
+process_mode = 3
 layer = -5
 
 [node name="Parallax2D" type="Parallax2D" parent="BGcanvas" unique_id=1542230854]
+process_mode = 3
 repeat_size = Vector2(790, 790)
 limit_begin = Vector2(0, 0)
 limit_end = Vector2(1000, 1000)
 script = ExtResource("16_sc1dx")
 
 [node name="BackgroundTex" type="Sprite2D" parent="BGcanvas/Parallax2D" unique_id=195432172]
+process_mode = 3
 z_index = -5
 texture_repeat = 2
 position = Vector2(577, 317.00003)
@@ -491,8 +504,11 @@ texture = ExtResource("17_sc1dx")
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
 [connection signal="pressed" from="HUD/IntermissionHUD/IntermissionPanel/ContinueButton" to="." method="_on_continue_button_pressed"]
 [connection signal="pressed" from="HUD/GameOverHUD/GameOverPanel/ReturnMenuButton" to="." method="_on_game_over_return_menu_button_pressed"]
+[connection signal="pressed" from="HUD/MainMenuHUD/MainMenuPanel/PlayButton" to="." method="_on_play_button_pressed"]
+[connection signal="pressed" from="HUD/MainMenuHUD/MainMenuPanel/SettingsButton" to="." method="_on_settings_mainmenu_button_pressed"]
 [connection signal="pressed" from="HUD/PauseHUD/PausePanel/ResumeButton" to="." method="_on_resume_button_pressed"]
 [connection signal="pressed" from="HUD/PauseHUD/PausePanel/SettingsButton" to="." method="_on_settings_paused_button_pressed"]
+[connection signal="pressed" from="HUD/PauseHUD/PausePanel/ReturnMenuButton" to="." method="_on_returnmenu_paused_button_pressed"]
 [connection signal="pressed" from="HUD/SettingsHUD/SettingsPanel/Save" to="." method="_on_savechange_button_pressed"]
 [connection signal="value_changed" from="HUD/SettingsHUD/SettingsPanel/SFXslider" to="." method="_on_sfxslider_value_changed"]
 [connection signal="value_changed" from="HUD/SettingsHUD/SettingsPanel/Clickerslider" to="." method="_on_clickerslider_value_changed"]
