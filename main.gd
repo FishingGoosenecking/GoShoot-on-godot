@@ -10,6 +10,9 @@ var player_damage := 1
 var combo_bonus := 1.0
 var boss_spawn_rate := 1.0
 
+var sfx_volume := 0.5
+var click_volume := 0.5
+
 var rng = RandomNumberGenerator.new()
 # === ROUND SYSTEM ===
 var round := 1
@@ -17,10 +20,10 @@ var round_time := 30.0
 var time_left := 30.0
 
 var score_goal := 10
-
 var upgrade_points = 0
 
-var in_intermission := false
+var in_intermission := true
+var is_paused := false
 
 #night transition
 var transition_state := "day"
@@ -76,6 +79,8 @@ var boss_instance: Node = null
 var boss_interval := boss_interval_set
 
 func _ready():
+	AudioServer.set_bus_volume_linear(AudioServer.get_bus_index("Clicker"),click_volume)
+	AudioServer.set_bus_volume_linear(AudioServer.get_bus_index("SFX"),sfx_volume)
 	start_round()
 	# Start hidden
 	screen_size = get_viewport_rect().size
@@ -310,14 +315,14 @@ func _on_circle_clicked(pos: Vector2):
 
 #boss
 func play_random_boss_sound():
-
 	if boss_intro_sounds.is_empty():
 		return
-
 	var index = randi() % boss_intro_sounds.size()
-
 	$BossIntroAudio.stream = boss_intro_sounds[index]
+	var audio_pitch = rng.randf_range(0.7,2)
+	$BossIntroAudio.set_pitch_scale(audio_pitch)
 	$BossIntroAudio.play()
+	print("Playing audio at pitch: %f" % audio_pitch)
 	
 func stop_random_boss_sound():
 	$BossIntroAudio.stop()
@@ -383,11 +388,11 @@ func get_score(pos: Vector2):
 	else:
 		if combo > 0:
 			show_alert("COMBO BREAK!", Color.RED)
+			print("Combo Broken!")
 			combo = 0
 			$HUD/GameHUD/ComboLabel.text = "Multi: %d" % multiplier
 	var points = int(1 * multiplier)
 	score += points
-	$HUD/GameHUD/ScoreLabel.text = "Score: %d" % score
 	$ClickSound.pitch_scale = 1.0 + combo * 0.05
 	$ClickSound.play()
 	spawn_popup(pos, points, combo)
@@ -444,10 +449,10 @@ func _on_timer_timeout():
 	if in_intermission == true:
 		return
 	time_left -= 1
+	print("TimeLeft: %d" % time_left)
 	if time_left <= 0:
 		$Timer.stop()
 		show_game_over()
-		print("Done")
 	else:
 		update_hud()
 
@@ -458,7 +463,6 @@ func check_goal():
 func reset_progress():
 	round = 1
 	score = 0
-
 	score_goal = 10
 	round_time = 30.0
 
@@ -467,6 +471,8 @@ func _on_ContinueButton_pressed():
 
 func update_hud():
 	$HUD/GameHUD/Goalbar.value = score
+	$HUD/GameHUD/ScoreLabel.text = "Score: %d" % score
+	$HUD/GameHUD/GoalLabel.text = "Goal: %d" % score_goal
 	$HUD/GameHUD/TimerLabel.text = "Time: " + str(int(time_left))
 	
 func show_game_over():
@@ -477,6 +483,70 @@ func show_game_over():
 	$HUD/GameOverHUD/GameOverPanel/RoundLabel.text="You survived %d Round(s)" % round
 	$HUD/GameOverHUD/GameOverPanel/ScoreLabel.text="With score of: %d" % score
 	get_tree().paused = true
+
+# ========== Main Menu HUD ==========
+
+func _on_game_over_return_menu_button_pressed() -> void:
+	show_mainmenu()
+
+func show_mainmenu():
+	$HUD/GameOverHUD.hide()
+	$HUD/MainMenuHUD.show()
+	reset_progress()
+	get_tree().paused = false
+	
+# ============ Pause HUD ============
+
+func show_pause():
+	get_tree().paused = true
+	is_paused = true
+	$HUD/GameHUD.hide()
+	$HUD/PauseHUD.show()
+	
+func hide_pause():
+	get_tree().paused = false
+	is_paused = false
+	$HUD/GameHUD.show()
+	$HUD/PauseHUD.hide()
+	
+func _on_resume_button_pressed() -> void:
+	hide_pause()
+	
+func _on_settings_paused_button_pressed() -> void:
+	show_settings()
+
+# ========== Settings HUD ==========
+func show_settings():
+	if is_paused:
+		$HUD/PauseHUD.hide()
+	else:
+		$HUD/MainMenuHUD.hide()
+	$HUD/SettingsHUD.show()
+	
+	$HUD/SettingsHUD/SettingsPanel/Clickerslider.value = click_volume
+	$HUD/SettingsHUD/SettingsPanel/SFXslider.value = sfx_volume
+	
+func hide_settings():
+	if is_paused:
+		$HUD/PauseHUD.show()
+	else:
+		$HUD/MainMenuHUD.show()
+	$HUD/SettingsHUD.hide()
+	
+func _on_savechange_button_pressed() -> void:
+	hide_settings()
+	
+# Volume
+func _on_sfxslider_value_changed(value: float) -> void:
+	sfx_volume = value
+	AudioServer.set_bus_volume_linear(AudioServer.get_bus_index("SFX"),sfx_volume)
+	print("SFX changed to: %d" % sfx_volume)
+
+func _on_clickerslider_value_changed(value: float) -> void:
+	click_volume = value
+	AudioServer.set_bus_volume_linear(AudioServer.get_bus_index("Clicker"),click_volume)
+	print("Click changed to: %d" % click_volume)
+
 # ========== Intermission HUD ===========
 
 var intermission_active = false
@@ -486,11 +556,13 @@ func show_round_clear():
 	play_random_boss_sound()
 	intermission_active = true
 	in_intermission = true
-	upgrade_points += 2
+	upgrade_points += rng.randf_range(1,3)
 	$Timer.stop()
 	# Show intermission
 	$HUD/GameHUD.hide()
 	$HUD/IntermissionHUD.show()
+	$HUD/IntermissionHUD/IntermissionPanel/RoundLabel.text="You survived Round %d!" % round
+	$HUD/IntermissionHUD/IntermissionPanel/PointLabel.text="You currently have %d upgrade points." % upgrade_points
 	get_tree().paused = true
 	
 func _on_continue_button_pressed() -> void:
@@ -504,6 +576,7 @@ func start_next_round():
 	round_time += rng.randf_range(-10,10)
 	score_goal += rng.randf_range(10,50)
 	boss_chance += rng.randf_range(0.0,0.1)
+	round += 1
 	combo = 0
 	$Timer.start()
 	start_round()
@@ -514,10 +587,18 @@ func hide_round_clear():
 	start_next_round()
 
 #========== Click particles =========='
+
+#player inputs
 func _unhandled_input(event):
 	if event is InputEventMouseButton and event.pressed:
 		spawn_click_particles(event.position)
 		print("CLICK:", event.position)
+	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		if !is_paused:
+			show_pause()
+		else:
+			hide_pause()
+	
 
 func spawn_click_particles(pos: Vector2):
 	var p = click_particles_scene.instantiate()
@@ -525,4 +606,3 @@ func spawn_click_particles(pos: Vector2):
 	add_child(p)
 	p.emitting = true
 	print("spawn")
-	
