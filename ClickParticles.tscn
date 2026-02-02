@@ -20,6 +20,7 @@ scale_max = 0.79999995
 color_ramp = SubResource("GradientTexture1D_q7h3d")
 
 [node name="GPUParticles2D" type="GPUParticles2D" unique_id=291628138]
+process_mode = 3
 z_index = 100
 emitting = false
 amount = 5

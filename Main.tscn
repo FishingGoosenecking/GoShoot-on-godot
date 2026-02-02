@@ -127,6 +127,7 @@ mouse_filter = 1
 text = "Day"
 
 [node name="BossBar" type="ProgressBar" parent="HUD/GameHUD" unique_id=318545043]
+visible = false
 modulate = Color(1, 0, 0, 1)
 offset_left = 416.0
 offset_top = 45.0
@@ -302,9 +303,9 @@ vertical_alignment = 1
 [node name="ScoreLabel" type="Label" parent="HUD/GameOverHUD/GameOverPanel" unique_id=1184494285]
 layout_mode = 0
 offset_left = 24.0
-offset_top = 147.0
+offset_top = 181.0
 offset_right = 356.0
-offset_bottom = 204.0
+offset_bottom = 238.0
 text = "Score:"
 label_settings = SubResource("LabelSettings_bg4s2")
 vertical_alignment = 1
@@ -312,9 +313,9 @@ vertical_alignment = 1
 [node name="RoundLabel" type="Label" parent="HUD/GameOverHUD/GameOverPanel" unique_id=882704992]
 layout_mode = 0
 offset_left = 24.0
-offset_top = 204.0
+offset_top = 126.0
 offset_right = 356.0
-offset_bottom = 261.0
+offset_bottom = 183.0
 text = "Round Passed:"
 label_settings = SubResource("LabelSettings_bg4s2")
 vertical_alignment = 1

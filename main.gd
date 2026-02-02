@@ -70,9 +70,10 @@ var screen_size
 @export var boss_intro_sounds: Array[AudioStream] = []
 @export var boss_spawn_score := 50
 @export var boss_chance := 0.2
-@export var boss_interval := 30
+@export var boss_interval_set := 30
 @export var boss_scene: PackedScene
 var boss_instance: Node = null
+var boss_interval := boss_interval_set
 
 func _ready():
 	start_round()
@@ -114,9 +115,6 @@ func _process(delta):
 			pass
 			
 	handle_spawning(delta)
-	
-	if score >= boss_spawn_score:
-		boss_interval -= delta
 		
 	if combo > 0:
 		var diff = Time.get_ticks_msec() - last_hit_time
@@ -308,6 +306,7 @@ func _on_circle_clicked(pos: Vector2):
 		# Delay boss spawn slightly
 		await get_tree().create_timer(1.2).timeout
 		spawn_boss()
+	boss_interval -= 1
 
 #boss
 func play_random_boss_sound():
@@ -339,6 +338,7 @@ func spawn_boss():
 	boss_instance.connect("boss_dead", _on_boss_dead)
 
 	init_boss_bar(boss_instance.max_hp)
+	boss_interval = boss_interval_set
 
 func init_boss_bar(max_hp):
 	var bar = $HUD/GameHUD/BossBar
@@ -474,6 +474,8 @@ func show_game_over():
 	$HUD/GameHUD.visible = false
 	$HUD/IntermissionHUD.visible = false
 	$HUD/GameOverHUD.visible = true
+	$HUD/GameOverHUD/GameOverPanel/RoundLabel.text="You survived %d Round(s)" % round
+	$HUD/GameOverHUD/GameOverPanel/ScoreLabel.text="With score of: %d" % score
 	get_tree().paused = true
 # ========== Intermission HUD ===========
 
@@ -500,9 +502,8 @@ func start_next_round():
 	get_tree().paused = false 
 	
 	round_time += rng.randf_range(-10,10)
-	score_goal += rng.randf_range(2.0,25.0)
+	score_goal += rng.randf_range(10,50)
 	boss_chance += rng.randf_range(0.0,0.1)
-	score = 0
 	combo = 0
 	$Timer.start()
 	start_round()
