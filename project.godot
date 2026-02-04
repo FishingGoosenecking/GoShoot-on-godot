@@ -21,10 +21,12 @@ config/icon="res://icon.svg"
 
 [audio]
 
-buses/default_bus_layout="uid://dra5skg81lasx"
+buses/default_bus_layout="uid://r3ocbbv6pn1h"
 
 [display]
 
+window/size/viewport_width=1280
+window/size/viewport_height=720
 window/stretch/mode="canvas_items"
 window/vsync/vsync_mode=2
 

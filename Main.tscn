@@ -447,7 +447,7 @@ layer = -5
 
 [node name="Parallax2D" type="Parallax2D" parent="BGcanvas" unique_id=1542230854]
 process_mode = 3
-repeat_size = Vector2(790, 790)
+repeat_size = Vector2(861.275, 861)
 limit_begin = Vector2(0, 0)
 limit_end = Vector2(1000, 1000)
 script = ExtResource("16_sc1dx")
@@ -456,8 +456,8 @@ script = ExtResource("16_sc1dx")
 process_mode = 3
 z_index = -5
 texture_repeat = 2
-position = Vector2(577, 317.00003)
-scale = Vector2(0.595, 0.595)
+position = Vector2(632.86005, 372.86005)
+scale = Vector2(0.64955086, 0.64955086)
 texture = ExtResource("17_sc1dx")
 
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
