@@ -9,6 +9,7 @@ outline_size = 2
 outline_color = Color(0, 0, 0, 1)
 
 [node name="ScorePopup" type="Node2D" unique_id=1806818729]
+process_mode = 1
 script = ExtResource("1_586pr")
 
 [node name="Label" type="Label" parent="." unique_id=534064986]

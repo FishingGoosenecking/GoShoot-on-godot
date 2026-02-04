@@ -15,9 +15,10 @@
 [ext_resource type="AudioStream" uid="uid://ccm2loet7sfh2" path="res://Boss SFX/Intro/Bigger weapons.mp3" id="10_5tuhn"]
 [ext_resource type="AudioStream" uid="uid://betwky55t4r6d" path="res://Boss SFX/Intro/that's a weapon.mp3" id="11_2gh4u"]
 [ext_resource type="AudioStream" uid="uid://decmq6418pnqd" path="res://Boss SFX/Intro/Need more boulets.mp3" id="12_devvj"]
-[ext_resource type="AudioStream" uid="uid://b1vwfxeakdjpq" path="res://ambatublow.mp3" id="13_kjvhd"]
-[ext_resource type="AudioStream" uid="uid://drrxhkw6fvrwl" path="res://thank you thank you thank you thank you thank you thank you thank you thank you thank you thank you.mp3" id="14_2gh4u"]
-[ext_resource type="AudioStream" uid="uid://ijqrb84nssxy" path="res://Oldest skibidi fan _ Skibidi dop dop dop ya ya full video 4.mp3" id="15_devvj"]
+[ext_resource type="AudioStream" uid="uid://b1vwfxeakdjpq" path="res://Boss SFX/Intro/ambatublow.mp3" id="13_kjvhd"]
+[ext_resource type="AudioStream" uid="uid://dykpsfyphn11t" path="res://Boss SFX/Intro/thank you thank you thank you thank you thank you thank you thank you thank you thank you thank you.mp3" id="14_2gh4u"]
+[ext_resource type="AudioStream" uid="uid://ijqrb84nssxy" path="res://Boss SFX/Intro/Oldest skibidi fan _ Skibidi dop dop dop ya ya full video 4.mp3" id="15_devvj"]
+[ext_resource type="AudioStream" uid="uid://dqiqfxp4fga03" path="res://เพนกวินเต้นตึงๆ.mp3" id="16_devvj"]
 [ext_resource type="Script" uid="uid://w4x65rultpjw" path="res://parallaxBG.gd" id="16_sc1dx"]
 [ext_resource type="Texture2D" uid="uid://c2v4m83pi5d42" path="res://BG_LowColor.png" id="17_sc1dx"]
 
@@ -33,27 +34,47 @@ shader_parameter/softness = 0.8
 [sub_resource type="LabelSettings" id="LabelSettings_uu6xs"]
 font_size = 40
 
+[sub_resource type="LabelSettings" id="LabelSettings_hhcpw"]
+font_size = 20
+
 [sub_resource type="LabelSettings" id="LabelSettings_j4qnp"]
 font_size = 64
 
+[sub_resource type="LabelSettings" id="LabelSettings_2gh4u"]
+font_size = 30
+
+[sub_resource type="LabelSettings" id="LabelSettings_devvj"]
+font_size = 20
+
+[sub_resource type="LabelSettings" id="LabelSettings_3b0ty"]
+font_size = 29
+
+[sub_resource type="LabelSettings" id="LabelSettings_bg4s2"]
+font_size = 30
+
+[sub_resource type="LabelSettings" id="LabelSettings_mxvw5"]
+font_size = 31
+
 [node name="Main" type="Node2D" unique_id=1842628434]
+process_mode = 1
 script = ExtResource("1_glv2v")
 popup_scene = ExtResource("2_cm0pq")
 circle_scene = ExtResource("2_uu6xs")
 NIGHT_DARKNESS = 0.9
-boss_intro_sounds = Array[AudioStream]([ExtResource("12_devvj"), ExtResource("11_2gh4u"), ExtResource("10_5tuhn"), ExtResource("9_kjvhd"), ExtResource("8_sc1dx"), ExtResource("7_fpfj3"), ExtResource("6_j4qnp"), ExtResource("5_03owx"), ExtResource("4_trn2v"), ExtResource("13_kjvhd"), ExtResource("14_2gh4u"), ExtResource("15_devvj")])
+boss_intro_sounds = Array[AudioStream]([ExtResource("12_devvj"), ExtResource("11_2gh4u"), ExtResource("10_5tuhn"), ExtResource("9_kjvhd"), ExtResource("8_sc1dx"), ExtResource("7_fpfj3"), ExtResource("6_j4qnp"), ExtResource("5_03owx"), ExtResource("4_trn2v"), ExtResource("13_kjvhd"), ExtResource("15_devvj"), ExtResource("14_2gh4u"), ExtResource("16_devvj")])
 boss_scene = ExtResource("4_3dxm6")
 
 [node name="Timer" type="Timer" parent="." unique_id=948187673]
 
 [node name="ClickSound" type="AudioStreamPlayer2D" parent="." unique_id=512063239]
 stream = ExtResource("3_r0du0")
-volume_db = -10.317
+volume_db = -11.0
+bus = &"Clicker"
 
-[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=2072230941]
+[node name="NightMode" type="CanvasLayer" parent="." unique_id=2072230941]
 layer = 0
 
-[node name="NightOverlay" type="ColorRect" parent="CanvasLayer" unique_id=1529291790]
+[node name="NightOverlay" type="ColorRect" parent="NightMode" unique_id=1529291790]
 visible = false
 material = SubResource("ShaderMaterial_3dxm6")
 anchors_preset = 15
@@ -65,52 +86,86 @@ mouse_filter = 2
 color = Color(0, 0, 0, 1)
 
 [node name="HUD" type="CanvasLayer" parent="." unique_id=720877451]
+process_mode = 2
 follow_viewport_enabled = true
 
 [node name="GameHUD" type="CanvasLayer" parent="HUD" unique_id=1827119552]
+visible = false
+
+[node name="Goalbar" type="ProgressBar" parent="HUD/GameHUD" unique_id=1591833753]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 28.0
+grow_horizontal = 2
+mouse_filter = 1
+show_percentage = false
+
+[node name="ScoreLabel" type="Label" parent="HUD/GameHUD" unique_id=1983466898]
+offset_left = 11.0
+offset_top = 31.0
+offset_right = 228.0
+offset_bottom = 86.0
+text = "Score: 0"
+label_settings = SubResource("LabelSettings_uu6xs")
+vertical_alignment = 1
+
+[node name="GoalLabel" type="Label" parent="HUD/GameHUD" unique_id=851505683]
+offset_left = 11.0
+offset_top = 85.0
+offset_right = 228.0
+offset_bottom = 113.0
+text = "GoalLabel"
+label_settings = SubResource("LabelSettings_hhcpw")
+vertical_alignment = 1
 
 [node name="ComboBar" type="ProgressBar" parent="HUD/GameHUD" unique_id=728806840]
-offset_left = 1.0
-offset_top = 621.0
-offset_right = 443.0
-offset_bottom = 648.0
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -27.0
+offset_right = 442.0
+grow_vertical = 0
 mouse_filter = 1
 max_value = 24.0
 step = 1.0
 show_percentage = false
 
-[node name="ScoreLabel" type="Label" parent="HUD/GameHUD" unique_id=1983466898]
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 215.0
-offset_bottom = 67.0
-text = "Score: 0"
-label_settings = SubResource("LabelSettings_uu6xs")
-vertical_alignment = 1
-
 [node name="ComboLabel" type="Label" parent="HUD/GameHUD" unique_id=2040351555]
-offset_left = 6.0
-offset_top = 623.0
-offset_right = 196.0
-offset_bottom = 646.0
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = -25.0
+offset_right = 194.0
+offset_bottom = -2.0
+grow_vertical = 0
 mouse_filter = 1
 text = "Multi: 1x"
 
 [node name="NightModeLabel" type="Label" parent="HUD/GameHUD" unique_id=1940222682]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
 offset_left = 4.0
-offset_top = 593.0
+offset_top = -50.0
 offset_right = 194.0
-offset_bottom = 618.0
+offset_bottom = -25.0
+grow_vertical = 0
 mouse_filter = 1
 text = "Day"
 
 [node name="BossBar" type="ProgressBar" parent="HUD/GameHUD" unique_id=318545043]
 visible = false
 modulate = Color(1, 0, 0, 1)
-offset_left = 416.0
-offset_top = 30.0
-offset_right = 760.0
-offset_bottom = 57.0
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -172.0
+offset_top = 35.0
+offset_right = 172.0
+offset_bottom = 62.0
+grow_horizontal = 2
+mouse_filter = 1
 value = 100.0
 
 [node name="AlertLabel" type="Label" parent="HUD/GameHUD" unique_id=70689783]
@@ -122,20 +177,297 @@ label_settings = SubResource("LabelSettings_j4qnp")
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="TimerLabel" type="Label" parent="HUD/GameHUD" unique_id=2146991084]
+offset_left = 983.0
+offset_top = 46.0
+offset_right = 1143.0
+offset_bottom = 69.0
+
+[node name="IntermissionHUD" type="CanvasLayer" parent="HUD" unique_id=229826183]
+process_mode = 2
+visible = false
+
+[node name="IntermissionPanel" type="ColorRect" parent="HUD/IntermissionHUD" unique_id=450989207]
+process_mode = 2
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 391.0
+grow_vertical = 2
+color = Color(0.13429797, 0.13429797, 0.13429797, 1)
+
+[node name="RoundLabel" type="Label" parent="HUD/IntermissionHUD/IntermissionPanel" unique_id=1958552713]
+process_mode = 2
+layout_mode = 0
+offset_left = 19.0
+offset_top = 17.0
+offset_right = 375.0
+offset_bottom = 73.0
+text = "Roundlabel"
+label_settings = SubResource("LabelSettings_2gh4u")
+vertical_alignment = 1
+
+[node name="PointLabel" type="Label" parent="HUD/IntermissionHUD/IntermissionPanel" unique_id=656568189]
+process_mode = 2
+layout_mode = 0
+offset_left = 21.0
+offset_top = 76.0
+offset_right = 372.0
+offset_bottom = 188.0
+text = "PointLabel"
+label_settings = SubResource("LabelSettings_devvj")
+
+[node name="ContinueButton" type="Button" parent="HUD/IntermissionHUD/IntermissionPanel" unique_id=131097379]
+process_mode = 2
+layout_mode = 0
+offset_left = 90.0
+offset_top = 580.0
+offset_right = 305.0
+offset_bottom = 626.0
+text = "Continue"
+
+[node name="GameOverHUD" type="CanvasLayer" parent="HUD" unique_id=910101510]
+visible = false
+
+[node name="GameOverPanel" type="ColorRect" parent="HUD/GameOverHUD" unique_id=701012502]
+process_mode = 2
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -761.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.17254902)
+
+[node name="ReturnMenuButton" type="Button" parent="HUD/GameOverHUD/GameOverPanel" unique_id=1071065995]
+process_mode = 2
+layout_mode = 0
+offset_left = 78.0
+offset_top = 545.0
+offset_right = 323.0
+offset_bottom = 605.0
+text = "Return to Menu"
+
+[node name="Gameover Text" type="Label" parent="HUD/GameOverHUD/GameOverPanel" unique_id=1084005212]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 16.0
+offset_right = 380.0
+offset_bottom = 122.0
+text = "GAME OVARRRRRR!!!!!!!!!!!
+!!!!!!!!!!!!!!!!"
+label_settings = SubResource("LabelSettings_3b0ty")
+vertical_alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="HUD/GameOverHUD/GameOverPanel" unique_id=1184494285]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 181.0
+offset_right = 356.0
+offset_bottom = 238.0
+text = "Score:"
+label_settings = SubResource("LabelSettings_bg4s2")
+vertical_alignment = 1
+
+[node name="RoundLabel" type="Label" parent="HUD/GameOverHUD/GameOverPanel" unique_id=882704992]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 126.0
+offset_right = 356.0
+offset_bottom = 183.0
+text = "Round Passed:"
+label_settings = SubResource("LabelSettings_bg4s2")
+vertical_alignment = 1
+
+[node name="MainMenuHUD" type="CanvasLayer" parent="HUD" unique_id=827523611]
+
+[node name="MainMenuPanel" type="ColorRect" parent="HUD/MainMenuHUD" unique_id=2012178415]
+process_mode = 3
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 391.0
+grow_vertical = 2
+color = Color(0, 0, 0, 0.17254902)
+
+[node name="GameNameLabel" type="Label" parent="HUD/MainMenuHUD/MainMenuPanel" unique_id=1520719543]
+process_mode = 3
+layout_mode = 0
+offset_left = 2.0
+offset_top = 28.0
+offset_right = 391.0
+offset_bottom = 145.0
+text = "GoShoot!"
+label_settings = SubResource("LabelSettings_mxvw5")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PlayButton" type="Button" parent="HUD/MainMenuHUD/MainMenuPanel" unique_id=2120496368]
+process_mode = 3
+layout_mode = 0
+offset_left = 61.0
+offset_top = 233.0
+offset_right = 334.0
+offset_bottom = 284.0
+text = "Play"
+
+[node name="SettingsButton" type="Button" parent="HUD/MainMenuHUD/MainMenuPanel" unique_id=572189931]
+process_mode = 3
+layout_mode = 0
+offset_left = 61.0
+offset_top = 318.0
+offset_right = 334.0
+offset_bottom = 369.0
+text = "Settings"
+
+[node name="PauseHUD" type="CanvasLayer" parent="HUD" unique_id=466772913]
+process_mode = 2
+visible = false
+
+[node name="PausePanel" type="ColorRect" parent="HUD/PauseHUD" unique_id=703737295]
+process_mode = 2
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 391.0
+grow_vertical = 2
+color = Color(0, 0, 0, 0.17254902)
+
+[node name="GameNameLabel" type="Label" parent="HUD/PauseHUD/PausePanel" unique_id=441413309]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 28.0
+offset_right = 391.0
+offset_bottom = 145.0
+text = "Paused"
+label_settings = SubResource("LabelSettings_mxvw5")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ResumeButton" type="Button" parent="HUD/PauseHUD/PausePanel" unique_id=1403503498]
+layout_mode = 0
+offset_left = 61.0
+offset_top = 235.0
+offset_right = 334.0
+offset_bottom = 286.0
+text = "Resume"
+
+[node name="SettingsButton" type="Button" parent="HUD/PauseHUD/PausePanel" unique_id=1697818356]
+layout_mode = 0
+offset_left = 61.0
+offset_top = 320.0
+offset_right = 334.0
+offset_bottom = 371.0
+text = "Settings"
+
+[node name="ReturnMenuButton" type="Button" parent="HUD/PauseHUD/PausePanel" unique_id=89127238]
+layout_mode = 0
+offset_left = 61.0
+offset_top = 406.0
+offset_right = 334.0
+offset_bottom = 457.0
+text = "Return To Menu"
+
+[node name="SettingsHUD" type="CanvasLayer" parent="HUD" unique_id=1600904975]
+process_mode = 3
+visible = false
+
+[node name="SettingsPanel" type="ColorRect" parent="HUD/SettingsHUD" unique_id=1874041245]
+process_mode = 3
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 391.0
+grow_vertical = 2
+color = Color(0, 0, 0, 0.17254902)
+
+[node name="Label" type="Label" parent="HUD/SettingsHUD/SettingsPanel" unique_id=1631573155]
+process_mode = 3
+layout_mode = 0
+offset_left = 2.0
+offset_top = 28.0
+offset_right = 391.0
+offset_bottom = 145.0
+text = "Settings"
+label_settings = SubResource("LabelSettings_mxvw5")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Save" type="Button" parent="HUD/SettingsHUD/SettingsPanel" unique_id=441240727]
+process_mode = 3
+layout_mode = 0
+offset_left = 61.0
+offset_top = 550.0
+offset_right = 334.0
+offset_bottom = 601.0
+text = "Save"
+
+[node name="SFXslider" type="HSlider" parent="HUD/SettingsHUD/SettingsPanel" unique_id=916208292]
+process_mode = 3
+layout_mode = 0
+offset_left = 40.0
+offset_top = 210.0
+offset_right = 352.0
+offset_bottom = 226.0
+max_value = 1.0
+step = 0.01
+
+[node name="Clickerslider" type="HSlider" parent="HUD/SettingsHUD/SettingsPanel" unique_id=1310588938]
+process_mode = 3
+layout_mode = 0
+offset_left = 40.0
+offset_top = 272.0
+offset_right = 352.0
+offset_bottom = 288.0
+max_value = 1.0
+step = 0.01
+
+[node name="Label2" type="Label" parent="HUD/SettingsHUD/SettingsPanel" unique_id=719172364]
+process_mode = 3
+layout_mode = 0
+offset_left = 44.0
+offset_top = 243.0
+offset_right = 349.0
+offset_bottom = 266.0
+text = "Clicker Volume"
+
+[node name="Label3" type="Label" parent="HUD/SettingsHUD/SettingsPanel" unique_id=1615795356]
+process_mode = 3
+layout_mode = 0
+offset_left = 44.0
+offset_top = 178.0
+offset_right = 352.0
+offset_bottom = 201.0
+text = "SFX Volume"
+
 [node name="BossIntroAudio" type="AudioStreamPlayer2D" parent="." unique_id=362851852]
+process_mode = 3
+pitch_scale = 1.51
+bus = &"SFX"
 
 [node name="BGcanvas" type="CanvasLayer" parent="." unique_id=65523095]
+process_mode = 3
 layer = -5
 
 [node name="Parallax2D" type="Parallax2D" parent="BGcanvas" unique_id=1542230854]
+process_mode = 3
 repeat_size = Vector2(790, 790)
 limit_begin = Vector2(0, 0)
 limit_end = Vector2(1000, 1000)
 script = ExtResource("16_sc1dx")
 
 [node name="BackgroundTex" type="Sprite2D" parent="BGcanvas/Parallax2D" unique_id=195432172]
+process_mode = 3
 z_index = -5
 texture_repeat = 2
 position = Vector2(577, 317.00003)
 scale = Vector2(0.595, 0.595)
 texture = ExtResource("17_sc1dx")
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
+[connection signal="pressed" from="HUD/IntermissionHUD/IntermissionPanel/ContinueButton" to="." method="_on_continue_button_pressed"]
+[connection signal="pressed" from="HUD/GameOverHUD/GameOverPanel/ReturnMenuButton" to="." method="_on_game_over_return_menu_button_pressed"]
+[connection signal="pressed" from="HUD/MainMenuHUD/MainMenuPanel/PlayButton" to="." method="_on_play_button_pressed"]
+[connection signal="pressed" from="HUD/MainMenuHUD/MainMenuPanel/SettingsButton" to="." method="_on_settings_mainmenu_button_pressed"]
+[connection signal="pressed" from="HUD/PauseHUD/PausePanel/ResumeButton" to="." method="_on_resume_button_pressed"]
+[connection signal="pressed" from="HUD/PauseHUD/PausePanel/SettingsButton" to="." method="_on_settings_paused_button_pressed"]
+[connection signal="pressed" from="HUD/PauseHUD/PausePanel/ReturnMenuButton" to="." method="_on_returnmenu_paused_button_pressed"]
+[connection signal="pressed" from="HUD/SettingsHUD/SettingsPanel/Save" to="." method="_on_savechange_button_pressed"]
+[connection signal="value_changed" from="HUD/SettingsHUD/SettingsPanel/SFXslider" to="." method="_on_sfxslider_value_changed"]
+[connection signal="value_changed" from="HUD/SettingsHUD/SettingsPanel/Clickerslider" to="." method="_on_clickerslider_value_changed"]

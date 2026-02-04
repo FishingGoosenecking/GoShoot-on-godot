@@ -19,6 +19,15 @@ run/main_scene="uid://dh0de12u441rq"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
+[audio]
+
+buses/default_bus_layout="uid://dra5skg81lasx"
+
+[display]
+
+window/stretch/mode="canvas_items"
+window/vsync/vsync_mode=2
+
 [editor]
 
 version_control/plugin_name="GitPlugin"

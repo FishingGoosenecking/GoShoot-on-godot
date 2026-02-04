@@ -1,6 +1,7 @@
 extends Node2D
 
 @onready var bg = $BGcanvas/Parallax2D
+@onready var click_particles_scene = preload("res://ClickParticles.tscn")
 
 @export var popup_scene: PackedScene
 @export var circle_scene: PackedScene
@@ -8,6 +9,19 @@ extends Node2D
 var player_damage := 1
 var combo_bonus := 1.0
 var boss_spawn_rate := 1.0
+
+var sfx_volume := 0.5
+var click_volume := 0.5
+
+var rng = RandomNumberGenerator.new()
+# === ROUND SYSTEM ===
+var round := 1
+var round_time := 30.0
+var time_left := 30.0
+
+var score_goal := 10
+var upgrade_points = 0
+var is_paused := false
 
 #night transition
 var transition_state := "day"
@@ -57,21 +71,19 @@ var screen_size
 @export var boss_intro_sounds: Array[AudioStream] = []
 @export var boss_spawn_score := 50
 @export var boss_chance := 0.2
-@export var boss_interval := 30
+@export var boss_interval_set := 30
 @export var boss_scene: PackedScene
 var boss_instance: Node = null
+var boss_interval := boss_interval_set
 
 func _ready():
-
+	AudioServer.set_bus_volume_linear(AudioServer.get_bus_index("Clicker"),click_volume)
+	AudioServer.set_bus_volume_linear(AudioServer.get_bus_index("SFX"),sfx_volume)
 	# Start hidden
 	screen_size = get_viewport_rect().size
 	spawn_circle()
 
-func get_screen_diagonal() -> float:
-	var size = get_viewport_rect().size
-	return sqrt(size.x * size.x + size.y * size.y)
 
-#loop func
 func _process(delta):
 	
 	bg.combo = combo
@@ -105,17 +117,20 @@ func _process(delta):
 			pass
 			
 	handle_spawning(delta)
-	
-	if score >= boss_spawn_score:
-		boss_interval -= delta
 		
 	if combo > 0:
 		var diff = Time.get_ticks_msec() - last_hit_time
 	
 		if diff > combo_break_time * 0.7:
 			$HUD/GameHUD/ComboBar.modulate = Color.ORANGE
+			
 
-#day/night
+#get_screen_size
+func get_screen_diagonal() -> float:
+	var size = get_viewport_rect().size
+	return sqrt(size.x * size.x + size.y * size.y)
+
+# =========== Night Mode event ============
 func handle_to_night(delta):
 
 	transition_time += delta
@@ -136,7 +151,7 @@ func handle_to_night(delta):
 		t
 	)
 
-	var mat = $CanvasLayer/NightOverlay.material
+	var mat = $NightMode/NightOverlay.material
 
 	mat.set_shader_parameter("radius", flashlight_radius)
 	mat.set_shader_parameter("darkness", darkness)
@@ -164,7 +179,7 @@ func handle_to_day(delta):
 		t
 	)
 
-	var mat = $CanvasLayer/NightOverlay.material
+	var mat = $NightMode/NightOverlay.material
 
 	mat.set_shader_parameter("radius", flashlight_radius)
 	mat.set_shader_parameter("darkness", darkness)
@@ -174,7 +189,7 @@ func handle_to_day(delta):
 		transition_state = "day"
 		$HUD/GameHUD/NightModeLabel.text = "transition_state: %s" % transition_state
 
-		$CanvasLayer/NightOverlay.visible = false
+		$NightMode/NightOverlay.visible = false
 
 func start_night_mode():
 	
@@ -190,12 +205,12 @@ func start_night_mode():
 	start_radius = get_screen_diagonal() * 1.2
 	flashlight_radius = start_radius
 
-	var mat = $CanvasLayer/NightOverlay.material
+	var mat = $NightMode/NightOverlay.material
 
 	mat.set_shader_parameter("radius", flashlight_radius)
 	mat.set_shader_parameter("darkness", DAY_DARKNESS)
 
-	$CanvasLayer/NightOverlay.visible = true
+	$NightMode/NightOverlay.visible = true
 	$HUD/GameHUD/NightModeLabel.text = "transition_state: %s" % transition_state
 	
 func end_night_mode():
@@ -209,7 +224,7 @@ func end_night_mode():
 	
 func update_flashlight():
 
-	var mat = $CanvasLayer/NightOverlay.material
+	var mat = $NightMode/NightOverlay.material
 	mat.set_shader_parameter(
 		"light_pos",
 		get_viewport().get_mouse_position()
@@ -224,7 +239,7 @@ func update_flashlight():
 	)
 	
 
-#target
+# =========== Targets (circles) ============
 func get_target_count() -> int:
 	return get_tree().get_nodes_in_group("targets").size()
 
@@ -242,8 +257,7 @@ func spawn_multiple_circles(amount: int):
 func _on_circle_expired():
 	if boss_instance != null:
 		score = max(score-1,0)
-		
-	$HUD/GameHUD/ScoreLabel.text = "Score: %d" % score
+		update_hud()
 	spawn_circle()
 	
 
@@ -266,6 +280,8 @@ func spawn_circle():
 	var limit = MAX_NIGHT_TARGETS if transition_state == "night" else MAX_DAY_TARGETS
 	if get_target_count() >= limit:
 		return
+	if intermission_active == true:
+		return
 	var circle = circle_scene.instantiate()
 	circle.expired.connect(_on_circle_expired)
 	
@@ -281,28 +297,36 @@ func spawn_circle():
 	circle.position = Vector2(x, y)
 	circle.clicked.connect(_on_circle_clicked)
 	add_child(circle)
-
-func _on_circle_clicked(pos: Vector2):
-	spawn_circle()
-	get_score(pos)
 	
-	if score > boss_spawn_score and boss_instance == null and randf() < boss_chance and boss_interval <= 0:
-		show_alert("BOSS INCOMING!", Color.ORANGE, 1.5)
+func _on_circle_clicked(pos: Vector2):
+	if  is_mainmenu:
+		return
+	else:
+		
+		spawn_circle()
+		spawn_click_particles(pos)
+		get_score(pos)
+	
+		if score > boss_spawn_score and boss_instance == null and randf() < boss_chance and boss_interval <= 0:
+			show_alert("BOSS INCOMING!", Color.ORANGE, 1.5)
 		# Delay boss spawn slightly
-		await get_tree().create_timer(1.2).timeout
-		spawn_boss()
+			await get_tree().create_timer(1.2).timeout
+			spawn_boss()
+		boss_interval -= 1
 
-#boss
+# ============ Boss System ============
 func play_random_boss_sound():
-
 	if boss_intro_sounds.is_empty():
 		return
-
 	var index = randi() % boss_intro_sounds.size()
-
 	$BossIntroAudio.stream = boss_intro_sounds[index]
+	var audio_pitch = rng.randf_range(0.7,2)
+	$BossIntroAudio.set_pitch_scale(audio_pitch)
 	$BossIntroAudio.play()
-
+	print("Playing audio at pitch: %f" % audio_pitch)
+	
+func stop_random_boss_sound():
+	$BossIntroAudio.stop()
 func spawn_boss():
 
 	if boss_instance:
@@ -320,6 +344,7 @@ func spawn_boss():
 	boss_instance.connect("boss_dead", _on_boss_dead)
 
 	init_boss_bar(boss_instance.max_hp)
+	boss_interval = boss_interval_set
 
 func init_boss_bar(max_hp):
 	var bar = $HUD/GameHUD/BossBar
@@ -341,7 +366,7 @@ func _on_boss_dead():
 	score += 20
 	play_random_boss_sound()
 
-#scoring
+# ========== Scoring System ============
 func get_score(pos: Vector2):
 	var now = Time.get_ticks_msec()
 	# How long since last hit
@@ -364,15 +389,17 @@ func get_score(pos: Vector2):
 	else:
 		if combo > 0:
 			show_alert("COMBO BREAK!", Color.RED)
+			print("Combo Broken!")
 			combo = 0
 			$HUD/GameHUD/ComboLabel.text = "Multi: %d" % multiplier
 	var points = int(1 * multiplier)
 	score += points
-	$HUD/GameHUD/ScoreLabel.text = "Score: %d" % score
 	$ClickSound.pitch_scale = 1.0 + combo * 0.05
 	$ClickSound.play()
 	spawn_popup(pos, points, combo)
 	update_combo_bar(combo, 24)
+	check_goal()
+	update_hud()
 
 	if not night_mode and randf() < night_chance and night_cooldown <= 0:
 		start_night_mode()
@@ -388,7 +415,7 @@ func update_combo_bar(combo: int, max_combo: int):
 	var color = Color.from_hsv(hue, 1.0, 1.0)
 	bar.modulate = color
 
-#alert
+# ========= Alert ==========
 func show_alert(text: String, color := Color.WHITE, time := 1.2):
 	var label = $HUD/GameHUD/AlertLabel
 	
@@ -410,3 +437,203 @@ func show_alert(text: String, color := Color.WHITE, time := 1.2):
 		label.modulate.a = 1.0
 	)
 	
+# ========= Rounding + Timer ===========
+
+func start_round():
+	$HUD/GameHUD/Goalbar.max_value = score_goal
+	intermission_active = false
+	is_mainmenu = false
+	time_left = round_time
+	$Timer.start()
+	update_hud()
+	
+func _on_timer_timeout():
+	if intermission_active == true:
+		return
+	time_left -= 1
+	print("TimeLeft: %d" % time_left)
+	if time_left <= 0:
+		$Timer.stop()
+		show_game_over()
+	else:
+		update_hud()
+
+func check_goal():
+	if score >= score_goal:
+		show_round_clear()
+
+func reset_progress():
+	round = 1
+	score = 0
+	score_goal = 10
+	round_time = 30.0
+
+func _on_ContinueButton_pressed():
+	start_next_round()
+
+func update_hud():
+	$HUD/GameHUD/Goalbar.value = score
+	$HUD/GameHUD/ScoreLabel.text = "Score: %d" % score
+	$HUD/GameHUD/GoalLabel.text = "Goal: %d" % score_goal
+	$HUD/GameHUD/TimerLabel.text = "Time: " + str(int(time_left))
+	
+func show_game_over():
+	play_random_boss_sound()
+	$HUD/GameHUD.visible = false
+	$HUD/IntermissionHUD.visible = false
+	$HUD/GameOverHUD.visible = true
+	$HUD/GameOverHUD/GameOverPanel/RoundLabel.text="You survived %d Round(s)" % round
+	$HUD/GameOverHUD/GameOverPanel/ScoreLabel.text="With score of: %d" % score
+	get_tree().paused = true
+
+# ========== Main Menu HUD ==========
+var is_mainmenu = true
+
+func _on_game_over_return_menu_button_pressed() -> void:
+	show_mainmenu()
+	
+func _on_play_button_pressed() -> void:
+	start_game()
+	
+func _on_settings_mainmenu_button_pressed() -> void:
+	show_settings()
+
+func show_mainmenu():
+	if is_paused:
+		$HUD/PauseHUD.hide()
+	is_mainmenu = true
+	$HUD/GameOverHUD.hide()
+	$HUD/MainMenuHUD.show()
+	reset_progress()
+	$Timer.stop()
+	get_tree().paused = false
+	
+func start_game():
+	$HUD/MainMenuHUD.hide()
+	$HUD/GameHUD.show()
+	start_round()
+	
+# ============ Pause HUD ============
+
+func show_pause():
+	get_tree().paused = true
+	is_paused = true
+	$HUD/GameHUD.hide()
+	$HUD/PauseHUD.show()
+	
+func hide_pause():
+	get_tree().paused = false
+	is_paused = false
+	$HUD/GameHUD.show()
+	$HUD/PauseHUD.hide()
+	
+func _on_resume_button_pressed() -> void:
+	hide_pause()
+	
+func _on_settings_paused_button_pressed() -> void:
+	show_settings()
+	
+func _on_returnmenu_paused_button_pressed() -> void:
+	show_mainmenu()
+
+# ========== Settings HUD ==========
+func show_settings():
+	if is_paused:
+		$HUD/PauseHUD.hide()
+	if is_mainmenu:
+		$HUD/MainMenuHUD.hide()
+	$HUD/SettingsHUD.show()
+	
+	$HUD/SettingsHUD/SettingsPanel/Clickerslider.value = click_volume
+	$HUD/SettingsHUD/SettingsPanel/SFXslider.value = sfx_volume
+	
+func hide_settings():
+	if is_paused:
+		$HUD/PauseHUD.show()
+	if is_mainmenu:
+		$HUD/MainMenuHUD.show()
+	$HUD/SettingsHUD.hide()
+	
+func _on_savechange_button_pressed() -> void:
+	hide_settings()
+	
+# Volume
+func _on_sfxslider_value_changed(value: float) -> void:
+	sfx_volume = value
+	AudioServer.set_bus_volume_linear(AudioServer.get_bus_index("SFX"),sfx_volume)
+	print("SFX changed to: %d" % sfx_volume)
+
+func _on_clickerslider_value_changed(value: float) -> void:
+	click_volume = value
+	AudioServer.set_bus_volume_linear(AudioServer.get_bus_index("Clicker"),click_volume)
+	print("Click changed to: %d" % click_volume)
+
+# ========== Intermission HUD ===========
+
+var intermission_active = false
+var intermission_tween: Tween
+
+func show_round_clear():
+	play_random_boss_sound()
+	intermission_active = true
+	upgrade_points += rng.randf_range(1,3)
+	$Timer.stop()
+	# Show intermission
+	$HUD/GameHUD.hide()
+	$HUD/IntermissionHUD.show()
+	$HUD/IntermissionHUD/IntermissionPanel/RoundLabel.text="You survived Round %d!" % round
+	$HUD/IntermissionHUD/IntermissionPanel/PointLabel.text="You currently have %d upgrade points. (unused)" % upgrade_points
+	get_tree().paused = true
+	
+func _on_continue_button_pressed() -> void:
+	hide_round_clear()
+	stop_random_boss_sound()
+
+func start_next_round():
+	intermission_active = false
+	get_tree().paused = false 
+	
+	round_time += rng.randf_range(-10,10)
+	score_goal += rng.randf_range(5,20)*(round)
+	boss_chance += rng.randf_range(0.0,0.1)
+	round += 1
+	combo = 0
+	$Timer.start()
+	start_round()
+	
+func hide_round_clear():
+	$HUD/GameHUD.show()
+	$HUD/IntermissionHUD.hide()
+	start_next_round()
+
+#========== Click particles =========='
+
+#player inputs
+func _unhandled_input(event):
+	if event is InputEventMouseButton and event.pressed:
+		spawn_click_particles(event.position)
+		print("CLICK:", event.position)
+	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		if !is_mainmenu:
+			if !is_paused:
+				show_pause()
+			else:
+				hide_pause()
+	if event is InputEventKey and event.pressed and event.keycode == KEY_ENTER:
+		if intermission_active:
+			hide_round_clear()
+	
+
+func spawn_click_particles(pos: Vector2):
+	var p = click_particles_scene.instantiate()
+	p.global_position = pos
+	add_child(p)
+	p.emitting = true
+	print("spawn")
+	
+# ========= Upgrades (unused) ==========
+var flashlight_power = 1
+var score_multiplier = 1
+var target_lifetime = 1
+var combo_duration = 1
+var perk = "none" #none, special force, duelist, bribery, prepper 
