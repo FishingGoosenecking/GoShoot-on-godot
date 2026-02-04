@@ -3,3 +3,5 @@
 i created this because im bored but hey, at least i leanred about GDS for a bit
 
 This game is rogue-like (ish) 2d click on object game that spawned on fixed interval
+
+You can try it only at: https://fishinggoosenecking.github.io/GoShoot-on-godot/
