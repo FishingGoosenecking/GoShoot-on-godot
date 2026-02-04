@@ -21,7 +21,7 @@ config/icon="res://icon.svg"
 
 [audio]
 
-buses/default_bus_layout="uid://r3ocbbv6pn1h"
+buses/default_bus_layout="uid://c0yptkctgkrrl"
 
 [display]
 
