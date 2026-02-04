@@ -211,11 +211,10 @@ process_mode = 2
 layout_mode = 0
 offset_left = 21.0
 offset_top = 76.0
-offset_right = 208.0
-offset_bottom = 130.0
+offset_right = 372.0
+offset_bottom = 188.0
 text = "PointLabel"
 label_settings = SubResource("LabelSettings_devvj")
-vertical_alignment = 1
 
 [node name="ContinueButton" type="Button" parent="HUD/IntermissionHUD/IntermissionPanel" unique_id=131097379]
 process_mode = 2
@@ -225,46 +224,6 @@ offset_top = 580.0
 offset_right = 305.0
 offset_bottom = 626.0
 text = "Continue"
-
-[node name="SpawnRateButton" type="Button" parent="HUD/IntermissionHUD/IntermissionPanel" unique_id=1876121351]
-process_mode = 2
-z_index = 1
-layout_mode = 0
-offset_left = 19.0
-offset_top = 273.0
-offset_right = 59.0
-offset_bottom = 313.0
-text = "⬆️"
-
-[node name="ComboTimeButton" type="Button" parent="HUD/IntermissionHUD/IntermissionPanel" unique_id=2127570033]
-process_mode = 2
-z_index = 1
-layout_mode = 0
-offset_left = 19.0
-offset_top = 345.0
-offset_right = 59.0
-offset_bottom = 385.0
-text = "⬆️"
-
-[node name="FlashLightButton" type="Button" parent="HUD/IntermissionHUD/IntermissionPanel" unique_id=125456611]
-process_mode = 2
-z_index = 1
-layout_mode = 0
-offset_left = 19.0
-offset_top = 421.0
-offset_right = 59.0
-offset_bottom = 461.0
-text = "⬆️"
-
-[node name="BossDamageButton" type="Button" parent="HUD/IntermissionHUD/IntermissionPanel" unique_id=380226855]
-process_mode = 2
-z_index = 1
-layout_mode = 0
-offset_left = 19.0
-offset_top = 493.0
-offset_right = 59.0
-offset_bottom = 533.0
-text = "⬆️"
 
 [node name="GameOverHUD" type="CanvasLayer" parent="HUD" unique_id=910101510]
 visible = false

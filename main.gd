@@ -1,8 +1,5 @@
 extends Node2D
 
-@onready var background_normal = preload("res://BG_Color.png")
-@onready var background_play = preload("res://BG_LowColor.png")
-
 @onready var bg = $BGcanvas/Parallax2D
 @onready var click_particles_scene = preload("res://ClickParticles.tscn")
 
@@ -585,7 +582,7 @@ func show_round_clear():
 	$HUD/GameHUD.hide()
 	$HUD/IntermissionHUD.show()
 	$HUD/IntermissionHUD/IntermissionPanel/RoundLabel.text="You survived Round %d!" % round
-	$HUD/IntermissionHUD/IntermissionPanel/PointLabel.text="You currently have %d upgrade points." % upgrade_points
+	$HUD/IntermissionHUD/IntermissionPanel/PointLabel.text="You currently have %d upgrade points. (unused)" % upgrade_points
 	get_tree().paused = true
 	
 func _on_continue_button_pressed() -> void:
@@ -634,7 +631,7 @@ func spawn_click_particles(pos: Vector2):
 	p.emitting = true
 	print("spawn")
 	
-# ========= Upgrades ==========
+# ========= Upgrades (unused) ==========
 var flashlight_power = 1
 var score_multiplier = 1
 var target_lifetime = 1
